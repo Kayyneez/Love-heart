@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programmed Love - Corazón Real</title>
+    <title>Programmed Love - Botol Yakult</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            perspective: 1000px;
             font-family: Arial, sans-serif;
         }
 
@@ -72,47 +71,65 @@
             100% { transform: scale(1); }
         }
 
-        /* --- KONTEN UTAMA (ANIMASI HATI) --- */
+        /* --- KONTEN UTAMA --- */
         #heart-container {
             position: relative;
-            width: 100%;
-            height: 100vh;
+            width: 600px;
+            height: 600px;
             display: flex;
             justify-content: center;
             align-items: center;
-            transform-style: preserve-3d;
             opacity: 0;
-            transition: opacity 1.5s ease-in;
+            transition: opacity 1s ease-in;
         }
 
         #heart-container.show {
             opacity: 1;
         }
 
-        .i_love_word {
-            color: #ead6be;
-            font-size: 1.2rem;
-            font-family: Arial, sans-serif;
+        /* Teks Nama di Tengah */
+        .center-name {
             position: absolute;
-            text-shadow: 0 0 10px #ff53d9;
-            white-space: nowrap;
-            opacity: 0;
-            /* Animasi diatur via JS agar jeda waktunya acak (smooth) */
-            animation: heart-anim 4s infinite linear;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 15px #ff4d6d, 0 0 30px #ff4d6d;
+            z-index: 5;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            animation: name-glow 2s infinite alternate;
         }
 
-        @keyframes heart-anim {
+        @keyframes name-glow {
+            0% { transform: scale(0.95); text-shadow: 0 0 10px #ff4d6d; }
+            100% { transform: scale(1.05); text-shadow: 0 0 25px #ff4d6d, 0 0 40px #ff53d9; }
+        }
+
+        /* Teks "I Love You" Berjalan */
+        .i_love_word {
+            color: #ead6be;
+            font-size: 1.1rem;
+            position: absolute;
+            text-shadow: 0 0 8px #ff53d9;
+            white-space: nowrap;
+            opacity: 0;
+            animation: follow-path 5s infinite linear;
+        }
+
+        @keyframes follow-path {
             0% {
                 opacity: 0;
-                transform: translate3d(var(--x), var(--y), 0) scale(0.8);
+                transform: translate(var(--x0), var(--y0)) scale(0.6);
             }
-            30% {
+            4% {
                 opacity: 1;
-                transform: translate3d(var(--x), var(--y), 0) scale(1);
+            }
+            85% {
+                opacity: 1;
             }
             100% {
                 opacity: 0;
-                transform: translate3d(var(--x), calc(var(--y) - 50px), 50px) scale(0.9);
+                transform: translate(var(--x1), var(--y1)) scale(0.6);
             }
         }
     </style>
@@ -124,50 +141,87 @@
         <div class="heart-icon">❤️</div>
     </div>
 
-    <div id="heart-container"></div>
+    <div id="heart-container">
+        <div class="center-name" id="center-text" style="display: none;">Botol Yakult</div>
+    </div>
 
     <script>
-        // Rumus matematika (Persamaan Jantung/Heart Curve) untuk posisi teks "I love you"
-        function getHeartPosition(t) {
-            // Nilai t berkisar dari 0 sampai 2 * PI
-            // Menggunakan rumus standar kurva hati parametrik
+        // Rumus matematika untuk menentukan titik-titik bentuk hati
+        function getHeartPoint(t) {
+            // t berjalan dari 0 sampai 2 * Math.PI
+            // Rumus dibalik (negatif pada Y) agar urutan jalannya mulai dari BAWAH, naik ke KIRI, ke atas, lalu KANAN dan kembali ke bawah.
             const x = 16 * Math.pow(Math.sin(t), 3);
             const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
             
-            // Mengalikan dengan skala agar ukurannya pas di layar komputer
             return {
-                x: x * 15, 
-                y: y * 15
+                x: x * 13, // Skala lebar
+                y: y * 13  // Skala tinggi
             };
         }
 
         function startLoveAnimation() {
-            // Sembunyikan halaman klik
             document.getElementById('welcome-page').classList.add('hidden');
             
-            // Tampilkan container hati
             const container = document.getElementById('heart-container');
             container.classList.add('show');
+            
+            // Memunculkan nama tengah setelah klik
+            document.getElementById('center-text').style.display = 'block';
 
-            // Jumlah total teks "I love you" yang membentuk hati
-            const totalWords = 80; 
+            const totalWords = 60; // Jumlah teks "I love you" yang mengalir berkelompok
+            const baseDuration = 5; // Durasi satu putaran penuh (detik)
 
             for (let i = 0; i < totalWords; i++) {
-                // Menghitung sudut t untuk setiap teks agar menyebar membentuk lingkaran hati
-                const t = (i / totalWords) * 2 * Math.PI;
-                const pos = getHeartPosition(t);
-
-                // Membuat elemen teks baru
                 const word = document.createElement('div');
                 word.className = 'i_love_word';
                 word.innerText = 'I love you';
 
-                // Mengirim variabel posisi x dan y ke CSS
-                word.style.setProperty('--x', `${pos.x}px`);
-                word.style.setProperty('--y', `${pos.y}px`);
+                // Posisi Awal (Titik Bawah Hati: t = 0 atau t = 2*PI)
+                const startPos = getHeartPoint(0);
+                word.style.setProperty('--x0', `${startPos.x}px`);
+                word.style.setProperty('--y0', `${startPos.y}px`);
 
-                // Memberikan delay acak agar munculnya bergantian secara halus (smooth)
-                word.style.animationDelay = `${Math.random() * 4}s`;
+                // Posisi Akhir (Kembali ke Titik Bawah setelah memutar balik)
+                const endPos = getHeartPoint(2 * Math.PI);
+                word.style.setProperty('--x1', `${endPos.x}px`);
+                word.style.setProperty('--y1', `${endPos.y}px`);
+
+                // Trik Animasi Mengikuti Jalur:
+                // Menggunakan CSS Keyframes dinamis untuk tiap elemen berdasarkan urutan (i)
+                let keyframes = `@keyframes path-${i} {`;
+                
+                // Bagi perjalanan menjadi beberapa langkah (persentase)
+                const steps = 20; 
+                for (let j = 0; j <= steps; j++) {
+                    const pct = j / steps;
+                    // Teks berjalan memutari sudut dari 0 hingga 2*PI
+                    const t = pct * 2 * Math.PI; 
+                    const currentPos = getHeartPoint(t);
+                    
+                    // Mengatur opacity: muncul di awal, hilang di akhir putaran
+                    let opacity = 1;
+                    if (pct < 0.05) opacity = pct / 0.05;
+                    if (pct > 0.90) opacity = (1 - pct) / 0.10;
+
+                    keyframes += `
+                        ${pct * 100}% {
+                            opacity: ${opacity};
+                            transform: translate(${currentPos.x}px, ${currentPos.y}px);
+                        }
+                    `;
+                }
+                keyframes += `}`;
+
+                // Masukkan keyframe dinamis ini ke dalam dokumen HTML
+                const style = document.createElement('style');
+                style.innerHTML = keyframes;
+                document.head.appendChild(style);
+
+                // Terapkan animasi unik ke teks ini
+                word.style.animation = `path-${i} ${baseDuration}s infinite linear`;
+                
+                // Berikan jeda antar teks (delay) agar mereka berbaris rapi mengitari bentuk hati
+                word.style.animationDelay = `${(i / totalWords) * baseDuration}s`;
 
                 container.appendChild(word);
             }
