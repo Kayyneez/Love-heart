@@ -198,6 +198,7 @@
 
     <script>
         let isMusicPlaying = false; // Penanda status musik
+        const audio = document.getElementById('backsound');
 
         // Efek Loader Menghilang setelah 2.5 detik
         setTimeout(() => {
@@ -217,11 +218,10 @@
         }
 
         function startLoveAnimation() {
-            const audio = document.getElementById('backsound');
             audio.play().then(() => {
-                isMusicPlaying = true; // Set ke true jika musik berhasil diputar
+                isMusicPlaying = true; 
             }).catch(error => {
-                console.log("Audio gagal berputar:", error);
+                console.log("Audio gagal berputar otomatis:", error);
             });
 
             document.getElementById('welcome-page').classList.remove('show');
@@ -279,20 +279,29 @@
             }
         }
 
-        /* --- FITUR AUTO MUTE SAAT MENINGGALKAN WEB --- */
+        /* --- FITUR AUTO MUTE KETAT SAAT KELUAR/PINDAH APP --- */
+        function matikanMusik() {
+            audio.pause();
+        }
+
+        function nyalakanMusik() {
+            if (isMusicPlaying) {
+                audio.play().catch(err => console.log(err));
+            }
+        }
+
+        // Deteksi Pindah Tab / Minimize browser
         document.addEventListener('visibilitychange', function() {
-            const audio = document.getElementById('backsound');
-            
             if (document.hidden) {
-                // Jika user pindah tab, buka aplikasi lain, atau meminimalkan browser
-                audio.pause();
+                matikanMusik();
             } else {
-                // Jika user kembali ke halaman web ini
-                if (isMusicPlaying) {
-                    audio.play().catch(err => console.log(err));
-                }
+                nyalakanMusik();
             }
         });
+
+        // Deteksi Pindah Aplikasi / Tekan Tombol Home HP
+        window.addEventListener('blur', matikanMusik);
+        window.addEventListener('focus', nyalakanMusik);
     </script>
 </body>
-</html>
+    </html>  
