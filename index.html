@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love</title>
+<title>Love Surprise</title>
 
 <style>
 body{
@@ -12,67 +12,139 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:linear-gradient(135deg,#ffdde1,#ee9ca7);
-  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#0f0c29,#302b63,#ff4b2b);
+  font-family:Arial;
+  overflow:hidden;
 }
 
-.heart {
-  position: relative;
-  width: 200px;
-  height: 180px;
-  transform: rotate(-45deg);
-  background-color: red;
+/* tombol awal */
+#startBtn{
+  padding:15px 30px;
+  font-size:20px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:white;
+  font-weight:bold;
+}
+
+/* container love */
+#loveBox{
+  display:none;
+  position:relative;
+  width:300px;
+  height:300px;
+  justify-content:center;
+  align-items:center;
+}
+
+/* animasi muncul */
+.show{
+  display:flex !important;
+  animation: pop 1s ease;
+}
+
+@keyframes pop{
+  0%{transform:scale(0);}
+  80%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}
+
+/* heart */
+.heart{
+  position:absolute;
+  width:160px;
+  height:140px;
+  background:red;
+  transform:rotate(-45deg);
+  animation: beat 1s infinite;
 }
 
 .heart::before,
-.heart::after {
-  content: "";
-  position: absolute;
-  width: 200px;
-  height: 180px;
-  background-color: red;
-  border-radius: 50%;
+.heart::after{
+  content:"";
+  position:absolute;
+  width:160px;
+  height:140px;
+  background:red;
+  border-radius:50%;
 }
 
-.heart::before {
-  top: -100px;
-  left: 0;
+.heart::before{top:-80px;left:0;}
+.heart::after{left:80px;top:0;}
+
+@keyframes beat{
+  0%,100%{transform:rotate(-45deg) scale(1);}
+  50%{transform:rotate(-45deg) scale(1.1);}
 }
 
-.heart::after {
-  left: 100px;
-  top: 0;
+/* teks tengah */
+.centerText{
+  position:absolute;
+  color:white;
+  font-weight:bold;
+  text-align:center;
+  z-index:2;
 }
 
-.text {
-  position: absolute;
-  width: 200px;
-  text-align: center;
-  transform: rotate(45deg);
-  color: white;
-  font-weight: bold;
+/* teks muter pinggir */
+.circleText{
+  position:absolute;
+  width:300px;
+  height:300px;
+  animation: spin 6s linear infinite;
 }
 
-.text h1 {
-  font-size: 18px;
-  margin: 0;
+.circleText span{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform-origin:0 120px;
+  font-size:14px;
+  font-weight:bold;
+  color:white;
 }
 
-.text p {
-  font-size: 14px;
-  margin: 5px 0 0;
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
 }
 </style>
 </head>
 
 <body>
 
-<div class="heart">
-  <div class="text">
-    <h1>I LOVE YOU</h1>
-    <p>botol yakult</p>
+<button id="startBtn">KLIK 💖</button>
+
+<div id="loveBox">
+  <div class="heart"></div>
+
+  <div class="circleText" id="circleText"></div>
+
+  <div class="centerText">
+    <div style="font-size:18px;">I LOVE YOU</div>
+    <div style="font-size:14px;">Botol Yakult</div>
   </div>
 </div>
+
+<script>
+const btn = document.getElementById("startBtn");
+const box = document.getElementById("loveBox");
+const circle = document.getElementById("circleText");
+
+btn.onclick = () => {
+  btn.style.display = "none";
+  box.classList.add("show");
+
+  const text = "I LOVE YOU • ";
+  for(let i=0;i<40;i++){
+    let span = document.createElement("span");
+    span.innerText = text;
+    span.style.transform = `rotate(${i * 9}deg) translate(0,-120px)`;
+    circle.appendChild(span);
+  }
+};
+</script>
 
 </body>
 </html>
